@@ -1,6 +1,6 @@
 ## Discord Rich Presence support for Counter-Strike: Global Offensive!
 
-Made in Python 3.6.4, using the [Discord RPC module](https://github.com/suclearnub/python-discord-rpc) and the [game state integration system](https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Game_State_Integration) that CS:GO uses.
+Written in Python 3.6.4, using a [Discord RPC module](https://github.com/suclearnub/python-discord-rpc) and the [game state integration system](https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Game_State_Integration) that CS:GO uses.
 
 #### Notice: This program is completely safe and won't get you banned.
 
