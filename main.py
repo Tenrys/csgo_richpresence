@@ -5,6 +5,7 @@ import time
 import os
 import win32gui, win32con, win32process, psutil
 import argparse
+from sys import exit
 
 
 
@@ -22,7 +23,14 @@ client_id = "427969147985723403"
 
 class CSGOGameStateServer(HTTPServer):
 	def __init__(self, *args, **kwargs):
-		self.rpc = rpc.DiscordIpcClient.for_platform(client_id)
+		self.rpc = None
+		while not self.rpc:
+			try:
+				self.rpc = rpc.DiscordIpcClient.for_platform(client_id)
+				break
+			except:
+				time.sleep(5)
+				pass
 		self.state = -1
 		HTTPServer.__init__(self, *args, **kwargs)
 
@@ -164,6 +172,8 @@ if silent:
 	our_process = psutil.Process(our_pid)
 	if our_process.parent():
 		win32gui.EnumWindows(enum_window_callback, our_process.parent().pid)
+		if our_process.parent().parent():
+			win32gui.EnumWindows(enum_window_callback, our_process.parent().parent().pid) # fuck it, why not
 
 server_address = ("127.0.0.1", port)
 while True:

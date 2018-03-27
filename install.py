@@ -3,6 +3,7 @@ import shutil
 import argparse
 import winreg
 from PyVDF import PyVDF
+from sys import exit
 
 os.system("title Discord Rich Presence: Counter-Strike: Global Offensive [Installer]")
 
