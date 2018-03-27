@@ -2,12 +2,9 @@ import rpc
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 import time
-from os import system
-import win32gui, win32con
+import os
+import win32gui, win32con, win32process, psutil
 import argparse
-
-# hide = win32gui.GetForegroundWindow()
-# win32gui.ShowWindow(hide, win32con.SW_HIDE)
 
 
 
@@ -21,13 +18,26 @@ modes = {
 	"competitive": "Competitive",
 	"deathmatch": "Deathmatch"
 }
-
 client_id = "427969147985723403"
+
 class CSGOGameStateServer(HTTPServer):
 	def __init__(self, *args, **kwargs):
 		self.rpc = rpc.DiscordIpcClient.for_platform(client_id)
 		self.state = -1
 		HTTPServer.__init__(self, *args, **kwargs)
+
+	def service_actions(self):
+		running = False
+		for pid in psutil.pids():
+			try:
+				p = psutil.Process(pid)
+				if p.name() == "csgo.exe":
+					running = True
+			except:
+				pass
+		if not running:
+			print("csgo.exe not running, no need to keep going.")
+			self.shutdown()
 
 	def handle_json(self, data):
 		game_state = json.loads(data)
@@ -129,17 +139,47 @@ class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
 
 
 
-system("title Discord Rich Presence: Counter-Strike: Global Offensive")
+os.system("title Discord Rich Presence: Counter-Strike: Global Offensive")
 
-port = 3000
+parser = argparse.ArgumentParser(prog="csgo_richpresence")
+parser.add_argument("-S", "--silent", action="store_true", default=False, help="hide the console window entirely, leaving the program to run in the background")
+parser.add_argument("-P", "--port", default=3000, help="pick what port to use for the http server")
+args = parser.parse_args()
+
+port = args.port
+silent = args.silent
+
+if silent:
+	# this layer of fuckery should do
+	def enum_window_callback(hwnd, pid):
+		_, current_pid = win32process.GetWindowThreadProcessId(hwnd)
+		if pid == current_pid:
+			win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
+
+	# process through all windows, compare their process' ID with ours and hide their windows if they match
+	our_pid = os.getpid()
+	win32gui.EnumWindows(enum_window_callback, our_pid)
+
+	# just in the case that it didn't work, try with the parent
+	our_process = psutil.Process(our_pid)
+	if our_process.parent():
+		win32gui.EnumWindows(enum_window_callback, our_process.parent().pid)
+
 server_address = ("127.0.0.1", port)
-httpd = CSGOGameStateServer(server_address, CSGOGameStateRequestHandler)
-
-print("Starting httpd at {}:{}".format(server_address[0], port))
-try:
-	httpd.serve_forever()
-except KeyboardInterrupt:
-	pass
-print('Stopping httpd...')
-httpd.server_close()
+while True:
+	print("Looking for csgo.exe...")
+	for pid in psutil.pids():
+		p = psutil.Process(pid)
+		if p.name() == "csgo.exe":
+			print("Found csgo.exe, running server.")
+			httpd = CSGOGameStateServer(server_address, CSGOGameStateRequestHandler)
+			print("Starting httpd at {}:{}".format(server_address[0], port))
+			try:
+				httpd.serve_forever()
+			except KeyboardInterrupt:
+				print('Stopping httpd...')
+				httpd.server_close()
+				exit()
+			break
+	time.sleep(30)
 
