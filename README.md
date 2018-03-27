@@ -2,7 +2,7 @@
 
 Written in Python 3.6.4, using a [Discord RPC module](https://github.com/suclearnub/python-discord-rpc) and the [game state integration system](https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Game_State_Integration) that CS:GO uses.
 
-The installer uses [PyVDF](https://github.com/amreuland/PyVDF).
+The installer uses [PyVDF](https://github.com/amreuland/PyVDF). `distribute.bat` makes use of pyinstaller.
 
 ### Notice: This program is completely safe and won't get you banned.
 
@@ -15,7 +15,7 @@ Once you feed CS:GO a specific and custom configuration file, it will start send
 ## Recommended:
 
 1. Download the [latest release](https://github.com/Tenrys/csgo_richpresence/releases/latest)'s zip file.
-2. Extract the zip file somewhere you judge appropriate for a program that you won't be touching.
+2. Extract the zip file's content in a folder somewhere you judge appropriate for a program that you won't be touching.
 3. Run `csgo_richpresence_installer.exe` in there, read carefully and follow its instructions.
 4. You should now have installed the program! It will run automatically next time you start Windows, in the background.
     - If you wish to uninstall it, run `csgo_richpresence_installer.exe` with the `--uninstall` command line option.
