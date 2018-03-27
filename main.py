@@ -110,11 +110,7 @@ class CSGOGameStateServer(HTTPServer):
 				activity["assets"]["small_image"] = player["team"].lower()
 
 			# send activity
-			print(activity)
-			try:
-				self.rpc.set_activity(activity)
-			except:
-				print("fucking error")
+			self.rpc.set_activity(activity)
 		else:
 			if self.state != 0:
 				self.state = 0 # menu state
