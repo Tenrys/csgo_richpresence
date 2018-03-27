@@ -22,11 +22,15 @@ modes = {
 client_id = "427969147985723403"
 
 class CSGOGameStateServer(HTTPServer):
+	def init_rpc(self):
+		self.rpc = rpc.DiscordRPC(client_id)
+		self.rpc.start()
+
 	def __init__(self, *args, **kwargs):
 		self.rpc = None
 		while not self.rpc:
 			try:
-				self.rpc = rpc.DiscordIpcClient.for_platform(client_id)
+				self.init_rpc()
 				print("RPC connection initialized.")
 				break
 			except:
@@ -111,7 +115,7 @@ class CSGOGameStateServer(HTTPServer):
 				activity["assets"]["small_image"] = player["team"].lower()
 
 			# send activity
-			self.rpc.set_activity(activity)
+			self.rpc.send_rich_presence(activity)
 		else:
 			if self.state != 0:
 				self.state = 0 # menu state
@@ -128,7 +132,7 @@ class CSGOGameStateServer(HTTPServer):
 				}
 
 				# nothing really happens in the menu, no need to update it all the time
-				self.rpc.set_activity(activity)
+				self.rpc.send_rich_presence(activity)
 
 class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
 	def _set_response(self):
