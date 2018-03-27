@@ -6,13 +6,13 @@ Made in Python 3.6.4, using the [Discord RPC module](https://github.com/suclearn
 
 # Installation, usage
 
-1. Place the `gamestate_integration_discordrpc.cfg` file in the `cfg` folder located in your game's installation directory. The game should now be trying to send info to the program when you restart it.
+1. Place the `gamestate_integration_discordrpc.cfg` file from this repository in the `cfg` folder located in your game's installation directory. The game should now be trying to send info to the program when you restart it. (port `3000` is used by default)
 2. Launch the program, **keep it open until you're done playing**.
-    - If you're a Windows user, all you should have to do is run the latest binary available in the [Releases](https://github.com/Tenrys/csgo_richpresence/releases) section.
-    - For other operating systems... I highly doubt CS:GO is even available for them in the first place so, figure it out yourself. You shouldn't need anything other than Python 3.6.4.
+    - If you're a Windows user, all you should have to do is run the [latest release](https://github.com/Tenrys/csgo_richpresence/releases/latest)'s executable.
+    - For other operating systems... I highly doubt CS:GO is even available for them in the first place, so figure it out yourself. You shouldn't need anything else other than Python 3.6.4.
 3. Watch your Discord status change according to what is happening in the game!
 
-No need to setup your own Discord application! Port `3000` is used by default.
+Yup, no need to setup your own Discord application!
 
 # Support
 
