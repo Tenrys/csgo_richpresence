@@ -24,5 +24,8 @@ Keep in mind this is meant to be a fun project for me to improve my Python skill
 
 # Features planned
 
-- [ ] Run automatically whenever the game starts and quit when it exits (might be difficult to do and too much effort)
+- [ ] Add "silent" option to not show any console at all
+- [ ] Add "port" launch option to pick whichever port you want to use for the server
+- [ ] "Installer" to run on startup with "silent" launch option
+- [ ] Only have the HTTP server up if the game is running
 - [ ] Install the required file automatically (good luck finding the CS:GO install directory)
