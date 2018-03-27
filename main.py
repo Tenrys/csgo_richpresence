@@ -27,6 +27,7 @@ class CSGOGameStateServer(HTTPServer):
 		while not self.rpc:
 			try:
 				self.rpc = rpc.DiscordIpcClient.for_platform(client_id)
+				print("RPC connection initialized.")
 				break
 			except:
 				time.sleep(5)
