@@ -20,7 +20,7 @@ Keep in mind this is meant to be a fun project for me to improve my Python skill
 
 # Known bugs
 
-- The "elapsed" time field tends to reset a lot when playing, so it's not accurate at all. I don't think there's anything I can do about it since I update the presence quite frequently while in game and Discord doesn't seem to make use of the timestamp I send. It's only really accurate in the menu since nothing happens there.
+- None!
 
 # Features planned
 
