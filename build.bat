@@ -1,1 +1,1 @@
-pyinstaller --onefile main.py
+pyinstaller -F -n csgo_richpresence main.py

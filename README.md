@@ -12,6 +12,8 @@ Made in Python 3.6.4, using the [Discord RPC module](https://github.com/suclearn
     - For other operating systems... I highly doubt CS:GO is even available for them in the first place so, figure it out yourself. You shouldn't need anything other than Python 3.6.4.
 3. Watch your Discord status change according to what is happening in the game!
 
+No need to setup your own Discord application! Port `3000` is used by default.
+
 # Support
 
 Keep in mind this is meant to be a fun project for me to improve my Python skills, so it might not be perfect. It should work relatively good anyway, but don't hesitate to create an issue with the error log inside if it bugs out. I'll be glad to help!
