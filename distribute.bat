@@ -1,5 +1,7 @@
 @echo off
 
+del csgo_richpresence.exe
+del csgo_richpresence_installer.exe
 del release.zip
 
 pyinstaller -F -n csgo_richpresence --distpath . main.py

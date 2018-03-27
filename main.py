@@ -5,7 +5,7 @@ import time
 import os
 import win32gui, win32con, win32process, psutil
 import argparse
-from sys import exit
+import sys
 
 
 
@@ -110,7 +110,11 @@ class CSGOGameStateServer(HTTPServer):
 				activity["assets"]["small_image"] = player["team"].lower()
 
 			# send activity
-			self.rpc.set_activity(activity)
+			print(activity)
+			try:
+				self.rpc.set_activity(activity)
+			except:
+				print("fucking error")
 		else:
 			if self.state != 0:
 				self.state = 0 # menu state
@@ -189,7 +193,7 @@ while True:
 			except KeyboardInterrupt:
 				print('Stopping httpd...')
 				httpd.server_close()
-				exit()
+				sys.exit()
 			break
 	time.sleep(30)
 

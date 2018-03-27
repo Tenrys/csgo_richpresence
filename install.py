@@ -2,8 +2,8 @@ import os
 import shutil
 import argparse
 import winreg
+import sys
 from PyVDF import PyVDF
-from sys import exit
 
 os.system("title Discord Rich Presence: Counter-Strike: Global Offensive [Installer]")
 
@@ -20,7 +20,7 @@ try:
 	steam_path = winreg.QueryValueEx(steam, "SteamPath")[0]
 except:
 	print("Steam not installed? Aborting install.")
-	exit()
+	sys.exit()
 
 # find other eventual game library folders
 library_folders = PyVDF(infile=os.path.join(steam_path, "steamapps", "libraryfolders.vdf")).find("LibraryFolders")
@@ -56,7 +56,7 @@ if csgo_dir_found:
 			if reply == "N" or reply == "Y":
 				break
 		if reply == "N":
-			exit()
+			sys.exit()
 
 		# install cfg file
 		print("Installing the game state integration configuration file to your game's cfg folder...")
@@ -99,7 +99,7 @@ if csgo_dir_found:
 			if reply == "N" or reply == "Y":
 				break
 		if reply == "N":
-			exit()
+			sys.exit()
 
 		try:
 			autorun = winreg.CreateKey(reg, "Software\\Microsoft\\Windows\\CurrentVersion\\Run")
@@ -112,4 +112,4 @@ if csgo_dir_found:
 		input("\nPress Enter to quit.")
 else:
 	print("Couldn't find csgo directory, aborting install.")
-	exit()
+	sys.exit()
