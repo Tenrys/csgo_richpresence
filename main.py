@@ -16,11 +16,13 @@ modes = {
 	"competitive": "Competitive",
 	"deathmatch": "Deathmatch"
 }
-class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
+
+client_id = "427969147985723403"
+class CSGOGameStateServer(HTTPServer):
 	def __init__(self, *args, **kwargs):
-		self.phase = ""
+		self.rpc = rpc.DiscordIpcClient.for_platform(client_id)
 		self.state = -1
-		BaseHTTPRequestHandler.__init__(self, *args, **kwargs)
+		HTTPServer.__init__(self, *args, **kwargs)
 
 	def handle_json(self, data):
 		game_state = json.loads(data)
@@ -29,12 +31,10 @@ class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
 		# print(json.dumps(game_state, sort_keys=True, indent=4, separators=(',', ': ')))
 
 		activity = {}
-		sendTime = False
 		if "round" in game_state:
 			if self.state != 1:
 				self.state = 1 # playing
 				self.time = time.time()
-				sendTime = True
 
 			# init vars
 			round = game_state["round"]
@@ -44,27 +44,10 @@ class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
 			map = game_state["map"]
 
 			# round state info
-			round_state = str(map["team_ct"]["score"]) + " - " + str(map["team_t"]["score"]) + ", "
-			round_state = round_state + phases[round["phase"]]
+			round_state = "State: " + str(map["team_ct"]["score"]) + " - " + str(map["team_t"]["score"]) + ", "
+			round_state += phases[round["phase"]]
 			if round["phase"] == "live" and "bomb" in round and round["bomb"] == "planted":
-				round_state = round_state + ", bomb planted"
-
-			"""
-			if player["team"] == "CT":
-				if map["team_ct"]["score"] > map["team_t"]["score"]:
-					round_state = round_state + " (winning)"
-				elif map["team_ct"]["score"] < map["team_t"]["score"]:
-					round_state = round_state + " (losing)"
-				else:
-					round_state = round_state + " (tie)"
-			elif player["team"] == "T":
-				if map["team_ct"]["score"] > map["team_t"]["score"]:
-					round_state = round_state + " (losing)"
-				elif map["team_ct"]["score"] < map["team_t"]["score"]:
-					round_state = round_state + " (winning)"
-				else:
-					round_state = round_state + " (tie)"
-			"""
+				round_state += ", bomb planted"
 
 			# map / mode info
 			map_text = map["name"] + " - " + modes[map["mode"]]
@@ -78,13 +61,14 @@ class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
 					team_text = "Terrorist"
 			else:
 				team_text = "Spectator" # never seen unless I add an icon
-			team_text = team_text + " - " + str(state["health"]) + " HP, " + str(state["armor"]) + " Armor"
+			team_text += " - " + str(state["health"]) + " HP, " + str(state["armor"]) + " Armor"
 
 			# player stats info
-			stats_text = str(match_stats["kills"]) + "K/"
-			stats_text = stats_text + str(match_stats["deaths"]) + "D/"
-			stats_text = stats_text + str(match_stats["mvps"]) + "MVPs"
-			stats_text = stats_text + " - $" + str(state["money"])
+			stats_text = str(match_stats["kills"]) + "|"
+			stats_text += str(match_stats["assists"]) + "|"
+			stats_text += str(match_stats["deaths"]) + " - "
+			stats_text += str(match_stats["mvps"]) + " MVPs"
+			stats_text += " - $" + str(state["money"])
 
 			# compile activity dict
 			activity = {
@@ -103,7 +87,7 @@ class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
 				activity["assets"]["small_image"] = player["team"].lower()
 
 			# send activity
-			rpc.set_activity(activity)
+			self.rpc.set_activity(activity)
 		else:
 			if self.state != 0:
 				self.state = 0 # menu state
@@ -120,8 +104,9 @@ class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
 				}
 
 				# nothing really happens in the menu, no need to update it all the time
-				rpc.set_activity(activity)
+				self.rpc.set_activity(activity)
 
+class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
 	def _set_response(self):
 		self.send_response(200)
 		self.send_header("Content-type", "text/html")
@@ -133,7 +118,7 @@ class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
 		# print("POST request,\nPath: {}\nHeaders:\n{}\n\nBody:\n{}\n".format(str(self.path), str(self.headers), post_data))
 
 		# we received game state data, process it
-		self.handle_json(post_data)
+		self.server.handle_json(post_data)
 
 		self._set_response()
 
@@ -143,11 +128,8 @@ system("title Discord Rich Presence: Counter-Strike: Global Offensive")
 
 port = 3000
 server_address = ("127.0.0.1", port)
-httpd = HTTPServer(server_address, CSGOGameStateRequestHandler)
+httpd = CSGOGameStateServer(server_address, CSGOGameStateRequestHandler)
 
-client_id = "427969147985723403"
-rpc = rpc.DiscordIpcClient.for_platform(client_id)
-print("RPC connection successful.")
 print("Starting httpd at {}:{}".format(server_address[0], port))
 try:
 	httpd.serve_forever()
