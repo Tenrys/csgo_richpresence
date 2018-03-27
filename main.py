@@ -1,8 +1,13 @@
 import rpc
-import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from os import system
 import json
+import time
+from os import system
+import win32gui, win32con
+import argparse
+
+# hide = win32gui.GetForegroundWindow()
+# win32gui.ShowWindow(hide, win32con.SW_HIDE)
 
 
 
