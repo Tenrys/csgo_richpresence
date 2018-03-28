@@ -1,4 +1,18 @@
+
 ## Discord Rich Presence support for Counter-Strike: Global Offensive!
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/csgo_icon.png" height=150/>
+    <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/discord_icon.png" height=150/>
+</p>
+
+<p align="center">
+    <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/scnshots/1.png" height=100/>
+    <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/scnshots/2.png" height=100/> 
+    <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/scnshots/5.png" height=100/>
+    <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/scnshots/3.png" height=100/>
+    <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/scnshots/4.png" height=100/>
+</p>
 
 Written in Python 3.6.4, using [PyDiscordRPC](https://github.com/DerpyChap/PyDiscordRPC), [infi.systray](https://github.com/Infinidat/infi.systray), [win10toast](https://github.com/jithurjacob/Windows-10-Toast-Notifications) and the [game state integration system](https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Game_State_Integration) that CS:GO uses.
 
