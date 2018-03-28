@@ -33,7 +33,7 @@ Your Discord status will now change according to what is happening in the game!
 ### Main program:
 
 - `--port, -P`: Use a different port other than the default (`3000`) one for the HTTP server if issues arise. Don't forget to change the config file accordingly! If you do need to, you'll need to reinstall the config file into your game folders.
-- `--silent, -S`: Tries to hide the program's window. Should work most of the time, used by default when the program gets installed.
+- `--silent, -S`: Tries to hide the program's window. Should work most of the time, used by default when the program is installed. Since the window gets hidden, you get a tray icon to still be able to quit easily, and notifications to tell you the most important events.
 
 ### (Un)installer:
 
