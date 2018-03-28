@@ -24,7 +24,7 @@ except:
 
 # find other eventual game library folders
 library_folders = PyVDF(infile=os.path.join(steam_path, "steamapps", "libraryfolders.vdf")).find("LibraryFolders")
-library_folders[0] = os.path.abspath(steam_path) # maximus hacksimus, might not work
+library_folders['0'] = os.path.abspath(steam_path) # maximus hacksimus
 csgo_dir = None
 csgo_dir_found = False
 for k, dir in library_folders.items():
