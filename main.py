@@ -1,3 +1,4 @@
+import sys
 import rpc
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
@@ -134,6 +135,11 @@ class CSGOGameStateServer(HTTPServer):
 				# nothing really happens in the menu, no need to update it all the time
 				self.rpc.send_rich_presence(activity)
 
+	def server_close(self, *args, **kwargs):
+		if self.rpc:
+			self.rpc.close()
+		HTTPServer.server_close(self, *args, **kwargs)
+
 class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
 	def _set_response(self):
 		self.send_response(200)
@@ -163,44 +169,73 @@ port = args.port
 silent = args.silent
 
 if silent:
+	# this layer of fuckery should do
+	our_pid = os.getpid()
 	hide = {
 		"cmd.exe": True,
 		"conhost.exe": True,
-		"python.exe": True
+		"python.exe": True,
 	}
-	# this layer of fuckery should do
+	hide[psutil.Process(our_pid).name().lower()] = True
+
 	def enum_window_callback(hwnd, pid):
-		if psutil.Process(pid).name().lower() in hide:
-			_, current_pid = win32process.GetWindowThreadProcessId(hwnd)
-			if pid == current_pid:
-				win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
+		try: # psutil is prone to error if you give it a pid for a process that doesn't exist
+			p = psutil.Process(pid)
+			if p and p.name().lower() in hide:
+				_, window_pid = win32process.GetWindowThreadProcessId(hwnd)
+				if pid == window_pid:
+					print("Hid window of", p.name())
+					win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
+		except Exception as e:
+			print("Failed to hide window:", str(e), pid)
+			# print("Something could have gone wrong here while hiding the console, ignore this")
+			# pass
 
+	def hide_window(pid):
+		win32gui.EnumWindows(enum_window_callback, pid)
+
+	print("Trying to hide console window...")
 	# process through all windows, compare their process' ID with ours and hide their windows if they match
-	our_pid = os.getpid()
-	win32gui.EnumWindows(enum_window_callback, our_pid)
+	print("Try 1")
+	hide_window(our_pid)
 
-	# just in the case that it didn't work, try with the parent
+	# just in the case that it didn't actually hide it, try that with the parents
+	# there might be a need to fuck with process children too but it works for now
 	our_process = psutil.Process(our_pid)
 	if our_process.parent():
-		win32gui.EnumWindows(enum_window_callback, our_process.parent().pid)
+		print("Try 2")
+		hide_window(our_process.parent().pid)
 		if our_process.parent().parent():
-			win32gui.EnumWindows(enum_window_callback, our_process.parent().parent().pid) # fuck it, why not
+			print("Try 3")
+			hide_window(our_process.parent().parent().pid) # fuck it, why not
 
 server_address = ("127.0.0.1", port)
-while True:
-	print("Looking for csgo.exe...")
-	for pid in psutil.pids():
-		p = psutil.Process(pid)
-		if p.name() == "csgo.exe":
+httpd = None
+try:
+	while True:
+		print("Looking for csgo.exe...")
+		found_csgo = False
+		for pid in psutil.pids():
+			try: # same as for enum_window_callback
+				p = psutil.Process(pid)
+				if p.name() == "csgo.exe":
+					found_csgo = True
+					break
+			except:
+				# print("Something could have gone wrong here while finding csgo.exe, ignore this")
+				pass
+		if found_csgo:
 			print("Found csgo.exe, running server.")
 			httpd = CSGOGameStateServer(server_address, CSGOGameStateRequestHandler)
 			print("Starting httpd at {}:{}".format(server_address[0], port))
-			try:
-				httpd.serve_forever()
-			except KeyboardInterrupt:
-				print('Stopping httpd...')
-				httpd.server_close()
-				sys.exit()
-			break
-	time.sleep(30)
+			httpd.serve_forever()
+		time.sleep(30)
+except KeyboardInterrupt:
+	if httpd:
+		print('Stopping httpd...')
+		httpd.server_close()
+	print("Exiting...")
+	sys.exit()
+
+# so many try statements in this script jesus fuck i don't know how to code
 

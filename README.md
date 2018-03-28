@@ -52,3 +52,5 @@ Keep in mind this is meant to be a fun project for me to improve my Python skill
 # Planned
 
 - Support for other operating systems?
+- Tray icon for silent mode
+- Notification that the program works on silent mode
