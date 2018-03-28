@@ -18,7 +18,7 @@ Written in Python 3.6.4, using [PyDiscordRPC](https://github.com/DerpyChap/PyDis
 
 The installer uses [PyVDF](https://github.com/amreuland/PyVDF). `distribute.bat` makes use of pyinstaller.
 
-### Notice: This program is completely safe and won't get you banned. Windows SmartScreen will probably throw you off trying to run my .exe, but it's all good.
+### Notice: This program is completely safe and won't get you banned by VAC or from Discord. Windows SmartScreen will probably throw you off trying to run my .exe, but it's all good.
 
 # How does it work?
 
