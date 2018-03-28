@@ -163,11 +163,17 @@ port = args.port
 silent = args.silent
 
 if silent:
+	hide = {
+		"cmd.exe": True,
+		"conhost.exe": True,
+		"python.exe": True
+	}
 	# this layer of fuckery should do
 	def enum_window_callback(hwnd, pid):
-		_, current_pid = win32process.GetWindowThreadProcessId(hwnd)
-		if pid == current_pid:
-			win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
+		if psutil.Process(pid).name().lower() in hide:
+			_, current_pid = win32process.GetWindowThreadProcessId(hwnd)
+			if pid == current_pid:
+				win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
 
 	# process through all windows, compare their process' ID with ours and hide their windows if they match
 	our_pid = os.getpid()
