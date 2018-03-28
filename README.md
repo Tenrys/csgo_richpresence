@@ -8,7 +8,7 @@
 
 <p align="center">
     <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/scnshots/1.png" height=100/>
-    <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/scnshots/2.png" height=100/> 
+    <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/scnshots/2.png" height=100/>
     <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/scnshots/5.png" height=100/>
     <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/scnshots/3.png" height=100/>
     <img src="https://raw.githubusercontent.com/Tenrys/csgo_richpresence/master/img/scnshots/4.png" height=100/>
@@ -28,8 +28,8 @@ Once you feed CS:GO a specific and custom configuration file, it will start send
 
 ## Recommended:
 
-1. Download the [latest release](https://github.com/Tenrys/csgo_richpresence/releases/latest)'s zip file.
-2. Extract the zip file's content in a folder somewhere you judge appropriate for a program that you won't be touching.
+1. Download the [latest release](https://github.com/Tenrys/csgo_richpresence/releases/latest)'s `release.zip` file.
+2. Extract its contents in a folder somewhere you judge appropriate for a program that you won't be touching.
 3. Run `csgo_richpresence_installer.exe` in there, read carefully and follow its instructions.
 4. You should now have installed the program! It will run automatically next time you start Windows, in the background.
     - If you wish to uninstall it, run `csgo_richpresence_installer.exe` with the `--uninstall` command line option.
