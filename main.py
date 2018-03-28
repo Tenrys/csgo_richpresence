@@ -167,9 +167,9 @@ def notify(msg):
 
 def exit():
 	notify("Exiting...")
-	sys.exit()
 	if systray: # silent mode only
 		systray.shutdown()
+	sys.exit()
 
 parser = argparse.ArgumentParser(prog="csgo_richpresence")
 parser.add_argument("-S", "--silent", action="store_true", default=False, help="hide the console window entirely, leaving the program to run in the background (Windows only)")
