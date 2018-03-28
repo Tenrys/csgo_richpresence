@@ -1,10 +1,10 @@
 ## Discord Rich Presence support for Counter-Strike: Global Offensive!
 
-Written in Python 3.6.4, using a [Discord RPC module](https://github.com/DerpyChap/PyDiscordRPC) and the [game state integration system](https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Game_State_Integration) that CS:GO uses.
+Written in Python 3.6.4, using [PyDiscordRPC](https://github.com/DerpyChap/PyDiscordRPC), [infi.systray](https://github.com/Infinidat/infi.systray), [win10toast](https://github.com/jithurjacob/Windows-10-Toast-Notifications) and the [game state integration system](https://developer.valvesoftware.com/wiki/Counter-Strike:_Global_Offensive_Game_State_Integration) that CS:GO uses.
 
 The installer uses [PyVDF](https://github.com/amreuland/PyVDF). `distribute.bat` makes use of pyinstaller.
 
-### Notice: This program is completely safe and won't get you banned.
+### Notice: This program is completely safe and won't get you banned. Windows SmartScreen will probably throw you off trying to run my .exe, but it's all good.
 
 # How does it work?
 
@@ -41,7 +41,8 @@ Your Discord status will now change according to what is happening in the game!
 
 # Support
 
-Only Windows is supported, because it's not like anyone plays CS:GO on any other operating system anyway... Right?
+I'm not sure if the main part of the program works on Mac and Linux, but it should.
+Its silent mode and the installer will only work on Windows, though.
 
 Keep in mind this is meant to be a fun project for me to improve my Python skills, so it might not be perfect. It should work relatively good anyway, but don't hesitate to create an issue with the error log inside if it bugs out. I'll be glad to help!
 
@@ -51,6 +52,5 @@ Keep in mind this is meant to be a fun project for me to improve my Python skill
 
 # Planned
 
-- Support for other operating systems?
-- Tray icon for silent mode
-- Notification that the program works on silent mode
+- More support for other operating systems?
+- Avoid using more than one tray icon (currently win10toaster creates an extra for every notificaton)

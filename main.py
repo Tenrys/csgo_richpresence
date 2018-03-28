@@ -1,12 +1,10 @@
-import sys
+import os, sys
+import time
+import argparse
+import psutil
 import rpc
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
-import time
-import os
-import win32gui, win32con, win32process, psutil
-import argparse
-import sys
 
 
 
@@ -50,7 +48,9 @@ class CSGOGameStateServer(HTTPServer):
 			except:
 				pass
 		if not running:
-			print("csgo.exe not running, no need to keep going.")
+			notify("csgo.exe not running, no need to keep going.")
+			if systray:
+				systray.update(hover_text=our_name)
 			self.shutdown()
 
 	def handle_json(self, data):
@@ -160,58 +160,83 @@ class CSGOGameStateRequestHandler(BaseHTTPRequestHandler):
 
 os.system("title Discord Rich Presence: Counter-Strike: Global Offensive")
 
+def notify(msg):
+	print(msg)
+	if toaster: # silent mode only
+		toaster.show_toast(icon_path="icon.ico", title=our_name, msg=msg, duration=10, threaded=True)
+
+def exit():
+	notify("Exiting...")
+	sys.exit()
+	if systray: # silent mode only
+		systray.shutdown()
+
 parser = argparse.ArgumentParser(prog="csgo_richpresence")
-parser.add_argument("-S", "--silent", action="store_true", default=False, help="hide the console window entirely, leaving the program to run in the background")
-parser.add_argument("-P", "--port", default=3000, help="pick what port to use for the http server")
+parser.add_argument("-S", "--silent", action="store_true", default=False, help="hide the console window entirely, leaving the program to run in the background (Windows only)")
+parser.add_argument("-P", "--port", default=3000, help="pick what port to use for the HTTP server")
 args = parser.parse_args()
 
 port = args.port
 silent = args.silent
 
+toaster = None
 if silent:
-	# this layer of fuckery should do
-	our_pid = os.getpid()
-	hide = {
-		"cmd.exe": True,
-		"conhost.exe": True,
-		"python.exe": True,
-	}
-	hide[psutil.Process(our_pid).name().lower()] = True
+	if sys.platform != "win32":
+		print("Tried to use silent mode on an operating system that isn't Windows.")
+	else:
+		import win32gui, win32con, win32process
+		from infi.systray import SysTrayIcon
+		from win10toast import ToastNotifier
 
-	def enum_window_callback(hwnd, pid):
-		try: # psutil is prone to error if you give it a pid for a process that doesn't exist
-			p = psutil.Process(pid)
-			if p and p.name().lower() in hide:
-				_, window_pid = win32process.GetWindowThreadProcessId(hwnd)
-				if pid == window_pid:
-					print("Hid window of", p.name())
-					win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
-		except Exception as e:
-			print("Failed to hide window:", str(e), pid)
-			# print("Something could have gone wrong here while hiding the console, ignore this")
-			# pass
+		# this layer of fuckery should do
+		our_pid = os.getpid()
+		our_name = psutil.Process(our_pid).name()
+		hide = {
+			"cmd.exe": True,
+			"conhost.exe": True,
+			"python.exe": True,
+		}
+		hide[our_name.lower()] = True
 
-	def hide_window(pid):
-		win32gui.EnumWindows(enum_window_callback, pid)
+		def enum_window_callback(hwnd, pid):
+			try: # psutil is prone to error if you give it a pid for a process that doesn't exist
+				p = psutil.Process(pid)
+				if p and p.name().lower() in hide:
+					_, window_pid = win32process.GetWindowThreadProcessId(hwnd)
+					if pid == window_pid:
+						print("Hid window of", p.name())
+						win32gui.ShowWindow(hwnd, win32con.SW_HIDE)
+			except Exception as e:
+				print("Failed to hide window:", str(e), pid)
+				# print("Something could have gone wrong here while hiding the console, ignore this")
+				# pass
 
-	print("Trying to hide console window...")
-	# process through all windows, compare their process' ID with ours and hide their windows if they match
-	print("Try 1")
-	hide_window(our_pid)
+		def hide_window(pid):
+			win32gui.EnumWindows(enum_window_callback, pid)
 
-	# just in the case that it didn't actually hide it, try that with the parents
-	# there might be a need to fuck with process children too but it works for now
-	our_process = psutil.Process(our_pid)
-	if our_process.parent():
-		print("Try 2")
-		hide_window(our_process.parent().pid)
-		if our_process.parent().parent():
-			print("Try 3")
-			hide_window(our_process.parent().parent().pid) # fuck it, why not
+		print("Trying to hide console window...")
+		# process through all windows, compare their process' ID with ours and hide their windows if they match
+		print("Try 1")
+		hide_window(our_pid)
+
+		# just in the case that it didn't actually hide it, try that with the parents
+		# there might be a need to fuck with process children too but it works for now
+		our_process = psutil.Process(our_pid)
+		if our_process.parent():
+			print("Try 2")
+			hide_window(our_process.parent().pid)
+			if our_process.parent().parent():
+				print("Try 3")
+				hide_window(our_process.parent().parent().pid) # fuck it, why not
+
+		toaster = ToastNotifier()
+		systray = SysTrayIcon("icon.ico", our_name, on_quit=exit)
+		systray.start()
 
 server_address = ("127.0.0.1", port)
 httpd = None
 try:
+	notify("Discord Rich Presence for CS:GO is now running in the background.")
 	while True:
 		print("Looking for csgo.exe...")
 		found_csgo = False
@@ -225,7 +250,10 @@ try:
 				# print("Something could have gone wrong here while finding csgo.exe, ignore this")
 				pass
 		if found_csgo:
-			print("Found csgo.exe, running server.")
+			notify("Found csgo.exe, running server.")
+			if systray:
+				systray.update(hover_text=our_name + ": running")
+
 			httpd = CSGOGameStateServer(server_address, CSGOGameStateRequestHandler)
 			print("Starting httpd at {}:{}".format(server_address[0], port))
 			httpd.serve_forever()
@@ -234,8 +262,13 @@ except KeyboardInterrupt:
 	if httpd:
 		print('Stopping httpd...')
 		httpd.server_close()
-	print("Exiting...")
-	sys.exit()
+
+	exit()
+except Exception as e:
+	notify("Error: " + str(e))
+	input("Press Enter to quit.")
+
+	exit()
 
 # so many try statements in this script jesus fuck i don't know how to code
 
