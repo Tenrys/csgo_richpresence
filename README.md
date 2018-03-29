@@ -36,11 +36,15 @@ Once you feed CS:GO a specific and custom configuration file, it will start send
 
 ## Manual:
 
-1. Place the `gamestate_integration_discordrpc.cfg` file from this repository in the `cfg` folder located in your game's installation directory. The game should now be trying to send info to the program when you restart it. (port `3000` is used by default in both the file and program)
+1. Place the `gamestate_integration_discordrpc.cfg` file from this repository in the `cfg` folder located in your game's installation directory. *(Default, on Windows: `C:\Program Files (x86\Steam\steamapps\common\Counter-Strike Global Offensive\csgo\cfg`)* The game should now be trying to send info to the program when you restart it. (port `3000` is used by default in both the file and program)
 2. Launch the program, **keep it open until you're done playing**.
     - If you don't want to install Python and everything else, use the [latest release](https://github.com/Tenrys/csgo_richpresence/releases/latest)'s executable.
 
 Your Discord status will now change according to what is happening in the game!
+
+You don't need to setup your own Discord application, but I've included some the assets I've used for it if you need to.
+If you're a developer you should be able to understand how to figure everything out starting from [your Discord applications page](https://discordapp.com/developers/applications/me).
+The team icons are named `ct` and `t` and are considered small images. The map icons are just taken from the game's original maps folder, are considered large images and are named all lowercase based on the map's file name.
 
 ## Command line options:
 
@@ -68,3 +72,4 @@ Keep in mind this is meant to be a fun project for me to improve my Python skill
 
 - More support for other operating systems?
 - Avoid using more than one tray icon (currently win10toaster creates an extra for every notificaton)
+- Figure out how to add "Ask to Join" and "Spectate" features (probably won't be allowed to just yet)

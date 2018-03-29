@@ -6,12 +6,21 @@ import rpc
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
+want_exit = False
+def exit():
+	print("Exiting...")
+	sys.exit()
+def state_exit(*args, **kwargs):
+	global want_exit
+	want_exit = True
+
 
 
 phases = {
 	"freezetime": "freeze time",
 	"live": "playing",
-	"over": "round over"
+	"over": "round over",
+	"warmup": "warmup"
 }
 modes = {
 	"casual": "Casual",
@@ -39,6 +48,9 @@ class CSGOGameStateServer(HTTPServer):
 		HTTPServer.__init__(self, *args, **kwargs)
 
 	def service_actions(self):
+		if want_exit:
+			self.server_close()
+			exit()
 		running = False
 		for pid in psutil.pids():
 			try:
@@ -90,14 +102,14 @@ class CSGOGameStateServer(HTTPServer):
 					team_text = "Terrorist"
 			else:
 				team_text = "Spectator" # never seen unless I add an icon
-			team_text += " - " + str(state["health"]) + " HP, " + str(state["armor"]) + " Armor"
+			# team_text += " - " + str(state["health"]) + " HP, " + str(state["armor"]) + " Armor"
+			team_text += " - $" + str(state["money"])
 
 			# player stats info
-			stats_text = str(match_stats["kills"]) + "|"
-			stats_text += str(match_stats["assists"]) + "|"
-			stats_text += str(match_stats["deaths"]) + " - "
+			stats_text = str(match_stats["kills"]) + "K / "
+			stats_text += str(match_stats["assists"]) + "A /"
+			stats_text += str(match_stats["deaths"]) + "D / "
 			stats_text += str(match_stats["mvps"]) + " MVPs"
-			stats_text += " - $" + str(state["money"])
 
 			# compile activity dict
 			activity = {
@@ -163,13 +175,7 @@ os.system("title Discord Rich Presence: Counter-Strike: Global Offensive")
 def notify(msg):
 	print(msg)
 	if toaster: # silent mode only
-		toaster.show_toast(icon_path="icon.ico", title=our_name, msg=msg, duration=10, threaded=True)
-
-def exit():
-	notify("Exiting...")
-	if systray: # silent mode only
-		systray.shutdown()
-	sys.exit()
+		toaster.show_toast(icon_path="icon.ico", title=our_name, msg=msg, duration=5, threaded=True)
 
 parser = argparse.ArgumentParser(prog="csgo_richpresence")
 parser.add_argument("-S", "--silent", action="store_true", default=False, help="hide the console window entirely, leaving the program to run in the background (Windows only)")
@@ -230,44 +236,46 @@ if silent:
 				hide_window(our_process.parent().parent().pid) # fuck it, why not
 
 		toaster = ToastNotifier()
-		systray = SysTrayIcon("icon.ico", our_name, on_quit=exit)
+		systray = SysTrayIcon("icon.ico", our_name, on_quit=state_exit)
 		systray.start()
 
 server_address = ("127.0.0.1", port)
 httpd = None
+next_csgo_check = 0
 try:
 	notify("Discord Rich Presence for CS:GO is now running in the background.")
 	while True:
-		print("Looking for csgo.exe...")
-		found_csgo = False
-		for pid in psutil.pids():
-			try: # same as for enum_window_callback
-				p = psutil.Process(pid)
-				if p.name() == "csgo.exe":
-					found_csgo = True
-					break
-			except:
-				# print("Something could have gone wrong here while finding csgo.exe, ignore this")
-				pass
-		if found_csgo:
-			notify("Found csgo.exe, running server.")
-			if systray:
-				systray.update(hover_text=our_name + ": running")
+		if want_exit:
+			exit()
+		if next_csgo_check < time.time():
+			print("Looking for csgo.exe...")
+			found_csgo = False
+			for pid in psutil.pids():
+				try: # same as for enum_window_callback
+					p = psutil.Process(pid)
+					if p.name() == "csgo.exe":
+						found_csgo = True
+						break
+				except:
+					# print("Something could have gone wrong here while finding csgo.exe, ignore this")
+					pass
+			if found_csgo:
+				notify("Found csgo.exe, running server.")
+				if systray:
+					systray.update(hover_text=our_name + ": running")
 
-			httpd = CSGOGameStateServer(server_address, CSGOGameStateRequestHandler)
-			print("Starting httpd at {}:{}".format(server_address[0], port))
-			httpd.serve_forever()
-		time.sleep(30)
+				httpd = CSGOGameStateServer(server_address, CSGOGameStateRequestHandler)
+				print("Starting httpd at {}:{}".format(server_address[0], port))
+				httpd.serve_forever()
+			next_csgo_check = time.time() + 30
 except KeyboardInterrupt:
 	if httpd:
 		print('Stopping httpd...')
 		httpd.server_close()
-
 	exit()
 except Exception as e:
 	notify("Error: " + str(e))
 	input("Press Enter to quit.")
-
 	exit()
 
 # so many try statements in this script jesus fuck i don't know how to code
