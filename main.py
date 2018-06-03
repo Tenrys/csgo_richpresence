@@ -6,6 +6,8 @@ import rpc
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
 
+systray = None
+
 want_exit = False
 def exit():
 	print("Exiting...")
