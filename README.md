@@ -1,3 +1,4 @@
+# ⚠ Unsupported, use at your own risk. May be very laggy and not uninstall properly.
 
 ## Discord Rich Presence support for Counter-Strike: Global Offensive!
 
